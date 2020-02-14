@@ -12,8 +12,8 @@ function getContent() {
 async function main() {
 
   let transporter = nodemailer.createTransport({
-    host: "smtp.zoho.com",
-    port: 465,
+    host: process.env.HOST,
+    port: process.env.PORT,
     secure: true,
     auth: {
       user: process.env.EMAIL, // generated ethereal user
