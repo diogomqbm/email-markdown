@@ -2,12 +2,22 @@ require("dotenv").config();
 const nodemailer = require("nodemailer");
 const showdown = require("showdown");
 const { readFileSync } = require("fs");
+const PROJECT_NAME = "Projeto 1";
+const PROJECT_LINK = "http://troflo-sandbox.com.s3-website-sa-east-1.amazonaws.com";
 
 function getContent() {
   const converter = new showdown.Converter();
   const text = readFileSync("./CHANGELOG.md", "utf8");
-  return converter.makeHtml(text);
+  const lastestRelease = "###" + text.split("###")[1];
+  return converter.makeHtml(lastestRelease);
 }
+
+const html = /*html*/
+`
+  <h1>Nova versão disponível do ${PROJECT_NAME}</h1>
+  ${getContent()}
+  <a href=${PROJECT_LINK}>Acesse por aqui!</a>
+`
 
 async function main() {
 
@@ -16,25 +26,19 @@ async function main() {
     port: process.env.PORT,
     secure: true,
     auth: {
-      user: process.env.EMAIL, // generated ethereal user
-      pass: process.env.PASS // generated ethereal password
+      user: process.env.EMAIL,
+      pass: process.env.PASS
     }
   });
 
-  // send mail with defined transport object
   let info = await transporter.sendMail({
     from: "T10 lab <it@t10lab.com>",
-    to: "diogomqbm13@gmail.com", // list of receivers
-    subject: "Hello ✔", // Subject line
-    html: getContent() // html body
+    to: "diogomqbm13@gmail.com",
+    subject: `Nova versão no ar - ${PROJECT_NAME}`,
+    html
   });
 
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-
-  // Preview only available when sending through an Ethereal account
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-  // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+  console.log("🤘 Message sent: %s", info.messageId);
 }
 
-main().catch(console.error);
+main().catch("😫 Something went wrong" + console.error);
